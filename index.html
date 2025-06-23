@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemini Chat App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .typing-cursor::after {
+        content: "▋";
+        animation: blink 1s step-end infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      /* Custom scrollbar */
+      .chat-history::-webkit-scrollbar {
+        width: 6px;
+      }
+      .chat-history::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      .chat-history::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 3px;
+      }
+      .dark .chat-history::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      .dark .chat-history::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
+      /* Markdown content styling */
+      .prose h1,
+      .prose h2,
+      .prose h3 {
+        font-weight: bold;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      .prose h1 {
+        font-size: 1.5rem;
+      }
+      .prose h2 {
+        font-size: 1.25rem;
+      }
+      .prose h3 {
+        font-size: 1.125rem;
+      }
+      .prose ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+      }
+      .prose ol {
+        list-style-type: decimal;
+        padding-left: 1.5rem;
+      }
+      .prose a {
+        color: #3b82f6;
+        text-decoration: underline;
+      }
+      .prose strong,
+      .prose b {
+        font-weight: 700;
+      }
+      .prose code {
+        background-color: #374151;
+        color: #e5e7eb;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-family: monospace;
+      }
+      .prose pre {
+        background-color: #1e293b;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        color: #e2e8f0;
+      }
+      .prose pre code {
+        padding: 0;
+        background-color: transparent;
+      }
+      .prose p {
+        margin-bottom: 0.75rem;
+      }
+      .prose blockquote {
+        border-left: 4px solid #4b5563;
+        padding-left: 1rem;
+        margin-left: 0;
+        color: #9ca3af;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center h-screen">
+    <div
+      class="w-full max-w-3xl h-[90vh] flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
+      <header
+        class="p-4 border-b dark:border-gray-700 flex items-center justify-between">
+        <h1 class="text-xl font-bold text-gray-800 dark:text-white">
+          Gemini Chat
+        </h1>
+        <!-- Optional: Add a new chat button or other controls here -->
+      </header>
+
+      <div
+        id="chat-history"
+        class="flex-grow p-6 space-y-6 overflow-y-auto chat-history">
+        <!-- Chat messages will be appended here -->
+      </div>
+
+      <div class="p-4 border-t dark:border-gray-700">
+        <form id="prompt-form" class="flex items-center gap-4">
+          <textarea
+            id="prompt-input"
+            rows="1"
+            class="flex-grow p-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none text-gray-900 dark:text-white placeholder-gray-500"
+            placeholder="Nhập câu hỏi của bạn..."></textarea>
+          <button
+            type="submit"
+            id="submit-button"
+            class="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shrink-0">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-send-horizontal">
+              <path d="m3 3 3 9-3 9 19-9Z" />
+              <path d="M6 12h16" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      const promptForm = document.getElementById("prompt-form");
+      const promptInput = document.getElementById("prompt-input");
+      const submitButton = document.getElementById("submit-button");
+      const chatHistory = document.getElementById("chat-history");
+
+      let history = []; // To store conversation history for the API
+
+      // Auto-resize textarea
+      promptInput.addEventListener("input", () => {
+        promptInput.style.height = "auto";
+        promptInput.style.height = promptInput.scrollHeight + "px";
+      });
+
+      promptForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const prompt = promptInput.value.trim();
+        if (!prompt || submitButton.disabled) return;
+
+        addUserMessage(prompt);
+        promptInput.value = "";
+        promptInput.style.height = "auto"; // Reset height
+        submitButton.disabled = true;
+
+        // Add user prompt to API history
+        history.push({ role: "user", parts: [{ text: prompt }] });
+
+        const aiMessageContainer = addAiMessage();
+        const aiMessageContent =
+          aiMessageContainer.querySelector(".message-content");
+        let fullResponseText = "";
+
+        try {
+          const apiKey = "";
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:streamGenerateContent?key=${apiKey}&alt=sse`;
+
+          const payload = { contents: history };
+
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            const message =
+              errorData.error?.message ||
+              `Lỗi không xác định. Status: ${response.status}`;
+            throw new Error(message);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const jsonString = line.substring(6).trim();
+                if (jsonString) {
+                  try {
+                    const chunk = JSON.parse(jsonString);
+                    const text =
+                      chunk.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) {
+                      fullResponseText += text;
+                      aiMessageContent.innerHTML =
+                        marked.parse(fullResponseText);
+                      scrollToBottom();
+                    }
+                  } catch (error) {
+                    console.error("Lỗi parse JSON chunk:", jsonString, error);
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          aiMessageContent.innerHTML = `<p style="color: #ef4444;">Đã có lỗi xảy ra: ${error.message}</p>`;
+        } finally {
+          aiMessageContent.classList.remove("typing-cursor");
+          submitButton.disabled = false;
+          // Add the final AI response to history
+          if (fullResponseText) {
+            history.push({
+              role: "model",
+              parts: [{ text: fullResponseText }],
+            });
+          }
+        }
+      });
+
+      function scrollToBottom() {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+
+      function addUserMessage(text) {
+        const messageHtml = `
+          <div class="flex justify-end">
+            <div class="bg-blue-500 text-white p-3 rounded-xl max-w-lg">
+              ${text}
+            </div>
+          </div>
+        `;
+        chatHistory.insertAdjacentHTML("beforeend", messageHtml);
+        scrollToBottom();
+      }
+
+      function addAiMessage() {
+        const messageId = `ai-message-${Date.now()}`;
+        const messageHtml = `
+          <div class="flex items-start gap-3">
+            <div class="bg-gray-200 dark:bg-gray-600 p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600 dark:text-gray-300"><path d="m12 8-4 4 4 4"/><path d="M12 12h8"/></svg>
+            </div>
+            <div id="${messageId}" class="bg-gray-100 dark:bg-gray-700 p-3 rounded-xl max-w-lg">
+              <div class="prose dark:prose-invert max-w-none message-content typing-cursor"></div>
+            </div>
+          </div>
+        `;
+        chatHistory.insertAdjacentHTML("beforeend", messageHtml);
+        scrollToBottom();
+        return document.getElementById(messageId);
+      }
+    </script>
+  </body>
+</html>
