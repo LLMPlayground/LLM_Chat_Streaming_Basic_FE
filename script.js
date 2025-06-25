@@ -213,7 +213,8 @@ async function handleFormSubmit(event) {
  * [SỬA ĐỔI] Hàm này đã được viết lại hoàn toàn để xử lý định dạng stream đã được chuẩn hóa từ server.
  */
 async function streamAIResponse(modelValue, history, aiMessageContent) {
-  const backendApiUrl = "http://localhost:3000/api/chat";
+  const backendApiUrl =
+    "https://llm-chat-streaming-basic-be.onrender.com/api/chat";
   let fullResponseText = "";
 
   try {
