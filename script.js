@@ -28,6 +28,35 @@ let currentConversationId = null;
 document.addEventListener("DOMContentLoaded", () => {
   loadTheme();
   loadConversationsFromStorage();
+
+  new TomSelect("#model-selector", {
+    create: false,
+    render: {
+      option: function (data, escape) {
+        if (data.imageSrc) {
+          return `<div class="flex items-center">
+                      <img src="${escape(
+                        data.imageSrc
+                      )}" alt="" class="w-5 h-5 mr-3">
+                      <span>${escape(data.text)}</span>
+                  </div>`;
+        }
+        return `<div>${escape(data.text)}</div>`;
+      },
+      item: function (data, escape) {
+        if (data.imageSrc) {
+          return `<div class="flex items-center">
+                      <img src="${escape(
+                        data.imageSrc
+                      )}" alt="" class="w-5 h-5 mr-2">
+                      <span>${escape(data.text)}</span>
+                  </div>`;
+        }
+        return `<div>${escape(data.text)}</div>`;
+      },
+    },
+  });
+
   renderHistorySidebar();
   if (currentConversationId && allConversations[currentConversationId]) {
     renderConversation(currentConversationId);
@@ -131,16 +160,53 @@ function renderHistorySidebar() {
     if (!conversation || conversation.length === 0) return; // Không hiển thị chat rỗng
 
     const title = getConversationTitle(conversation);
+
+    // Tạo container cho từng item lịch sử
+    const itemWrapper = document.createElement("div");
+    itemWrapper.className = "flex items-center group";
+
+    // Nút chọn cuộc trò chuyện (chứa luôn icon xoá)
     const historyItem = document.createElement("button");
-    historyItem.className = `w-full text-left p-3 text-sm rounded-lg truncate transition-colors ${
+    historyItem.className = `flex items-center justify-between w-full text-left p-3 text-sm rounded-lg truncate transition-colors ${
       id === currentConversationId
         ? "bg-gray-700 text-white"
         : "hover:bg-gray-800 text-gray-300"
     }`;
-    historyItem.textContent = title;
     historyItem.dataset.id = id;
-    historyItem.addEventListener("click", () => switchConversation(id));
-    chatHistoryList.appendChild(historyItem);
+    historyItem.innerHTML = `
+      <span class="truncate">${title}</span>
+      <span class="ml-2 delete-btn text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-500 transition" title="Xoá">
+        <i class="fas fa-trash"></i>
+      </span>
+    `;
+
+    // Sự kiện chọn cuộc trò chuyện
+    historyItem.addEventListener("click", (e) => {
+      // Nếu bấm vào icon xoá thì không chuyển cuộc trò chuyện
+      if (e.target.closest(".delete-btn")) return;
+      switchConversation(id);
+    });
+
+    // Sự kiện xoá
+    historyItem.querySelector(".delete-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      delete allConversations[id];
+      if (currentConversationId === id) {
+        const remainIds = Object.keys(allConversations).sort((a, b) => b - a);
+        currentConversationId = remainIds[0] || null;
+        if (currentConversationId) {
+          renderConversation(currentConversationId);
+        } else {
+          chatHistory.innerHTML = "";
+          addWelcomeMessage();
+        }
+      }
+      saveConversationsToStorage();
+      renderHistorySidebar();
+    });
+
+    itemWrapper.appendChild(historyItem);
+    chatHistoryList.appendChild(itemWrapper);
   });
 }
 
@@ -215,6 +281,7 @@ async function handleFormSubmit(event) {
 async function streamAIResponse(modelValue, history, aiMessageContent) {
   const backendApiUrl =
     "https://llm-chat-streaming-basic-be.onrender.com/api/chat";
+  // const backendApiUrl = "http://localhost:3000/api/chat";
   let fullResponseText = "";
 
   try {
@@ -378,7 +445,7 @@ function addWelcomeMessage() {
                 <i class="fas fa-robot text-4xl text-teal-500"></i>
             </div>
             <h2 class="mt-4 text-2xl font-semibold text-gray-700 dark:text-gray-200">
-                Làm thế nào tôi có thể giúp bạn hôm nay?
+                Tôi có thể giúp gì cho bạn hôm nay?
             </h2>
         </div>
     `;

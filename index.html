@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link
+      href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.css"
+      rel="stylesheet" />
+    <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -73,6 +76,44 @@
         background-color: transparent;
         border: none;
       }
+      .ts-dropdown {
+        z-index: 1;
+        background-color: white;
+      }
+      .dark #model-selector {
+        background-color: #23272f;
+        color: #e5e7eb;
+        border-color: #444950;
+      }
+      .dark #model-selector option,
+      .dark #model-selector optgroup {
+        background-color: #23272f;
+        color: #e5e7eb;
+      }
+      .dark .ts-dropdown {
+        background-color: #23272f;
+        color: #e5e7eb;
+        border-color: #444950;
+      }
+      .dark .ts-dropdown .option {
+        background-color: #23272f;
+        color: #e5e7eb;
+      }
+      .dark .ts-dropdown .option.active,
+      .dark .ts-dropdown .option.selected,
+      .dark .ts-dropdown .option:hover {
+        background-color: #334155;
+        color: #fff;
+      }
+      .dark .ts-control {
+        background-color: #23272f;
+        color: #e5e7eb;
+        border-color: #444950;
+      }
+      .dark .ts-control .item {
+        background-color: #334155;
+        color: #e5e7eb;
+      }
     </style>
   </head>
   <body class="bg-gray-100 dark:bg-[#343541]">
@@ -112,37 +153,281 @@
               id="model-selector"
               class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2">
               <optgroup label="Google">
-                <option value="gemini-2.0-flash" selected>
+                <option
+                  value="gemini-2.5-flash"
+                  data-image-src="https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png"
+                  selected>
                   Gemini 2.5 Flash
                 </option>
-                <option value="gemini-2.0-pro">Gemini 2.5 Pro</option>
+                <option
+                  value="gemini-2.5-pro"
+                  data-image-src="https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png">
+                  Gemini 2.5 Pro
+                </option>
               </optgroup>
 
               <optgroup label="GitHub Marketplace - OpenAI">
-                <option value="gpt-4.1">GPT-4.1</option>
-                <option value="gpt-4.1-mini">GPT-4.1 mini</option>
-                <option value="gpt-4o">GPT-4o</option>
-                <option value="gpt-4o-mini">GPT-4o mini</option>
-              </optgroup>
-
-              <optgroup label="GitHub Marketplace - Meta">
-                <option value="llama-3.1-8b-instruct">
-                  Llama 3.1 8B Instruct
+                <option
+                  value="openai/gpt-4.1"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI GPT-4.1
                 </option>
-                <option value="llama-3.1-70b-instruct">
-                  Llama 3.1 70B Instruct
+                <option
+                  value="openai/gpt-4.1-mini"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI GPT-4.1-mini
+                </option>
+                <option
+                  value="openai/gpt-4.1-nano"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI GPT-4.1-nano
+                </option>
+                <option
+                  value="openai/gpt-4o"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI GPT-4o
+                </option>
+                <option
+                  value="openai/gpt-4o-mini"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI GPT-4o mini
+                </option>
+                <option
+                  value="openai/o1"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI o1
+                </option>
+                <option
+                  value="openai/o1-mini"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI o1-mini
+                </option>
+                <option
+                  value="openai/o1-preview"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI o1-preview
+                </option>
+                <option
+                  value="openai/o3"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI o3
+                </option>
+                <option
+                  value="openai/o3-mini"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI o3-mini
+                </option>
+                <option
+                  value="openai/o4-mini"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/openai.svg">
+                  OpenAI o4-mini
                 </option>
               </optgroup>
 
               <optgroup label="GitHub Marketplace - Microsoft">
-                <option value="phi-3-mini-instruct">Phi-3 Mini Instruct</option>
-                <option value="phi-3-medium-instruct">
-                  Phi-3 Medium Instruct
+                <option
+                  value="microsoft/mai-ds-r1"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  MAI-DS-R1
+                </option>
+                <option
+                  value="microsoft/phi-3.5-moe-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3.5-MoE instruct (128k)
+                </option>
+                <option
+                  value="microsoft/phi-3.5-mini-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3.5-mini instruct (128k)
+                </option>
+                <option
+                  value="microsoft/phi-3.5-vision-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3.5-vision instruct (128k)
+                </option>
+                <option
+                  value="microsoft/phi-3-medium-128k-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3-medium instruct (128k)
+                </option>
+                <option
+                  value="microsoft/phi-3-medium-4k-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3-medium instruct (4k)
+                </option>
+                <option
+                  value="microsoft/phi-3-mini-128k-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3-mini instruct (128k)
+                </option>
+                <option
+                  value="microsoft/phi-3-mini-4k-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3-mini instruct (4k)
+                </option>
+                <option
+                  value="microsoft/phi-3-small-128k-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3-small instruct (128k)
+                </option>
+                <option
+                  value="microsoft/phi-3-small-8k-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-3-small instruct (8k)
+                </option>
+                <option
+                  value="microsoft/phi-4"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-4
+                </option>
+                <option
+                  value="microsoft/phi-4-mini-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-4-mini-instruct
+                </option>
+                <option
+                  value="microsoft/phi-4-mini-reasoning"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-4-mini-reasoning
+                </option>
+                <option
+                  value="microsoft/phi-4-multimodal-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-4-multimodal-instruct
+                </option>
+                <option
+                  value="microsoft/phi-4-reasoning"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/microsoft.svg">
+                  Phi-4-Reasoning
                 </option>
               </optgroup>
 
-              <optgroup label="GitHub Marketplace - Mistral">
-                <option value="mistral-large-2">Mistral Large 2</option>
+              <optgroup label="GitHub Marketplace - Mistral AI">
+                <option
+                  value="mistral-ai/codestral-2501"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/mistral ai.svg">
+                  Codestral 25.01
+                </option>
+                <option
+                  value="mistral-ai/ministral-3b"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/mistral ai.svg">
+                  Ministral 3B
+                </option>
+                <option
+                  value="mistral-ai/mistral-large-2411"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/mistral ai.svg">
+                  Mistral Large 24.11
+                </option>
+                <option
+                  value="mistral-ai/mistral-nemo"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/mistral ai.svg">
+                  Mistral Nemo
+                </option>
+                <option
+                  value="mistral-ai/mistral-medium-2505"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/mistral ai.svg">
+                  Mistral Medium 3 (25.05)
+                </option>
+                <option
+                  value="mistral-ai/mistral-small-2503"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/mistral ai.svg">
+                  Mistral Small 3.1
+                </option>
+              </optgroup>
+
+              <optgroup label="GitHub Marketplace - Cohere">
+                <option
+                  value="cohere/cohere-command-r-08-2024"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/cohere.svg">
+                  Cohere Command R 08-2024
+                </option>
+                <option
+                  value="cohere/cohere-command-r-plus-08-2024"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/cohere.svg">
+                  Cohere Command R+ 08-2024
+                </option>
+                <option
+                  value="cohere/cohere-command-a"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/cohere.svg">
+                  Cohere Command A
+                </option>
+              </optgroup>
+
+              <optgroup label="GitHub Marketplace - DeepSeek">
+                <option
+                  value="deepseek/deepseek-r1"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/deepseek.svg">
+                  DeepSeek-R1
+                </option>
+                <option
+                  value="deepseek/deepseek-r1-0528"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/deepseek.svg">
+                  DeepSeek-R1-0528
+                </option>
+                <option
+                  value="deepseek/deepseek-v3-0324"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/deepseek.svg">
+                  DeepSeek-V3-0324
+                </option>
+              </optgroup>
+
+              <optgroup label="GitHub Marketplace - Meta">
+                <option
+                  value="meta/llama-3.2-11b-vision-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/meta.svg">
+                  Llama-3.2-11B-Vision-Instruct
+                </option>
+                <option
+                  value="meta/llama-3.2-90b-vision-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/meta.svg">
+                  Llama-3.2-90B-Vision-Instruct
+                </option>
+                <option
+                  value="meta/llama-3.3-70b-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/meta.svg">
+                  Llama-3.3-70B-Instruct
+                </option>
+                <option
+                  value="meta/llama-4-maverick-17b-128e-instruct-fp8"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/meta.svg">
+                  Llama 4 Maverick 17B 128E Instruct FP8
+                </option>
+                <option
+                  value="meta/llama-4-scout-17b-16e-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/meta.svg">
+                  Llama 4 Scout 17B 16E Instruct
+                </option>
+                <option
+                  value="meta/meta-llama-3.1-405b-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/meta.svg">
+                  Meta-Llama-3.1-405B-Instruct
+                </option>
+                <option
+                  value="meta/meta-llama-3.1-8b-instruct"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/meta.svg">
+                  Meta-Llama-3.1-8B-Instruct
+                </option>
+              </optgroup>
+
+              <optgroup label="GitHub Marketplace - xAI">
+                <option
+                  value="xai/grok-3"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/xai.svg">
+                  Grok 3
+                </option>
+                <option
+                  value="xai/grok-3-mini"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/xai.svg">
+                  Grok 3 Mini
+                </option>
+              </optgroup>
+
+              <optgroup label="GitHub Marketplace - Core42">
+                <option
+                  value="core42/jais-30b-chat"
+                  data-image-src="https://github.com/images/modules/marketplace/models/families/core42.svg">
+                  JAIS 30b Chat
+                </option>
               </optgroup>
             </select>
           </div>
@@ -172,12 +457,16 @@
             </form>
             <p
               class="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
-              Chat interface inspired by ChatGPT.
+              Presented by
+              <a href="https://github.com/nermadie" style="color: #5b6696"
+                >Nermadie</a
+              >
             </p>
           </div>
         </footer>
       </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script src="script.js" type="module"></script>
   </body>
 </html>
